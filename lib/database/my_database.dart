@@ -34,8 +34,21 @@ class MyDatabase {
     return taskDoc.delete();
   }
 
-  static markAsDone(Task task) {
-    task.isDone = true;
-    getTasksCollection().doc(task.id).set(task);
+  static Future<void> restoreTask(Task task) {
+    var taskDoc = getTasksCollection().doc(task.id);
+    return taskDoc.set(task);
+  }
+
+  static Future<void> markAsDone(Task task) {
+    task.isDone = !task.isDone;
+    return getTasksCollection().doc(task.id).set(task);
+  }
+
+  static Future<void> updateTask(
+      Task task, String updateTittle, String updateDesc, DateTime newDate) {
+    task.tittle = updateTittle;
+    task.description = updateDesc;
+    task.dateTime = MyDateUtils.extractDateOnly(newDate);
+    return getTasksCollection().doc(task.id).set(task);
   }
 }

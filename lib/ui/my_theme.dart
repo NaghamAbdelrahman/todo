@@ -8,6 +8,7 @@ class MyTheme {
   static final lightTheme = ThemeData(
     primaryColor: lightPrimary,
     appBarTheme: const AppBarTheme(
+      elevation: 0,
       color: lightPrimary,
       titleTextStyle: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
       centerTitle: true,

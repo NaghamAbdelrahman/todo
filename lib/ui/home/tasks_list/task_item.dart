@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:todo/database/my_database.dart';
 import 'package:todo/database/task.dart';
@@ -24,31 +25,30 @@ class _TaskItemState extends State<TaskItem> {
             arguments: widget.task);
       },
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20), color: Colors.red),
         child: Slidable(
           startActionPane: ActionPane(
             extentRatio: 0.2,
-            motion: DrawerMotion(),
+            motion: const DrawerMotion(),
             children: [
               SlidableAction(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomLeft: Radius.circular(20)),
+                borderRadius: BorderRadius.circular(20),
                 onPressed: (buildContext) {
                   deleteTak();
                 },
                 backgroundColor: Colors.red,
-                label: 'Delete',
+                label: AppLocalizations.of(context)!.delete,
                 icon: Icons.delete,
               )
             ],
           ),
           child: Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20), color: Colors.white),
+                borderRadius: BorderRadius.circular(20),
+                color: Theme.of(context).accentColor),
             child: Row(
               children: [
                 Container(
@@ -60,7 +60,7 @@ class _TaskItemState extends State<TaskItem> {
                           ? Theme.of(context).primaryColor
                           : MyTheme.green),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 8,
                 ),
                 Expanded(
@@ -74,13 +74,14 @@ class _TaskItemState extends State<TaskItem> {
                               ? Theme.of(context).primaryColor
                               : MyTheme.green),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 12,
                     ),
-                    Text(widget.task.description),
+                    Text(widget.task.description,
+                        style: Theme.of(context).textTheme.subtitle1),
                   ],
                 )),
-                SizedBox(
+                const SizedBox(
                   width: 8,
                 ),
                 InkWell(
@@ -90,18 +91,18 @@ class _TaskItemState extends State<TaskItem> {
                   },
                   child: widget.task.isDone == false
                       ? Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 8, horizontal: 18),
-                          child: Icon(
-                            Icons.check,
-                            color: Colors.white,
-                          ),
+                    padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 18),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
                               color: Theme.of(context).primaryColor),
+                          child: const Icon(
+                            Icons.check,
+                            color: Colors.white,
+                          ),
                         )
                       : Text(
-                          'Done !',
+                    AppLocalizations.of(context)!.isDone,
                           style: Theme.of(context)
                               .textTheme
                               .headline5
@@ -119,19 +120,12 @@ class _TaskItemState extends State<TaskItem> {
   void deleteTak() {
     DialogUtils.showMessageDialog(
       context,
-      'Are you sure. you want to delete this task ?',
-      posActionTittle: 'Yes',
+      AppLocalizations.of(context)!.confirmMessage,
+      posActionTittle: AppLocalizations.of(context)!.yes,
       posAction: () async {
-        //     DialogUtils.showProgressDialog(context, 'Loading...');
         await MyDatabase.deleteTask(widget.task);
-        DialogUtils.hideDialog(context);
-        DialogUtils.showMessageDialog(context, 'Task deleted successfully',
-            posActionTittle: 'Ok',
-            negActionTittle: 'Undo', negAction: () async {
-          await MyDatabase.restoreTask(widget.task);
-        });
       },
-      negActionTittle: 'Cancel',
+      negActionTittle: AppLocalizations.of(context)!.cancel,
     );
   }
 }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:todo/database/my_database.dart';
 import 'package:todo/database/task.dart';
 
+import '../providers/settings_provider.dart';
 import '../utils/date_utils.dart';
 
 class EditTaskScreen extends StatefulWidget {
@@ -34,11 +37,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-
+    var settingsProvider = Provider.of<SettingsProvider>(context);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('To Do List'),
+        title: Text(AppLocalizations.of(context)!.toDoList),
       ),
       body: Column(
         children: [
@@ -55,7 +58,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   margin: EdgeInsets.only(top: screenSize.height * 0.05),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).accentColor,
                       borderRadius: BorderRadius.circular(20)),
                   child: Form(
                     key: formKey,
@@ -63,43 +66,68 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Edit Task',
+                          AppLocalizations.of(context)!.editTask,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headline5,
                         ),
                         TextFormField(
                             validator: (input) {
                               if (input == null || input.trim().isEmpty) {
-                                return 'Please enter a valid tittle';
+                                return AppLocalizations.of(context)!
+                                    .tittleValidation;
                               }
                               return null;
                             },
                             controller: tittleController,
+                            style: TextStyle(
+                                color: settingsProvider.currentTheme ==
+                                        ThemeMode.light
+                                    ? Colors.black
+                                    : Colors.white),
                             decoration: InputDecoration(
-                              labelText: 'Tittle',
-                            )),
+                                labelText: AppLocalizations.of(context)!.tittle,
+                                labelStyle: TextStyle(color: Colors.grey),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: settingsProvider.lightMood()
+                                          ? Colors.grey
+                                          : Colors.white),
+                                ))),
                         TextFormField(
                             validator: (input) {
                               if (input == null || input.trim().isEmpty) {
-                                return 'Please enter a valid description';
+                                return AppLocalizations.of(context)!
+                                    .descriptionValidation;
                               }
                               return null;
                             },
                             controller: descriptionController,
                             maxLines: 4,
                             minLines: 4,
+                            style: TextStyle(
+                                color: settingsProvider.currentTheme ==
+                                        ThemeMode.light
+                                    ? Colors.black
+                                    : Colors.white),
                             decoration: InputDecoration(
-                              labelText: 'description',
-                            )),
+                                labelText:
+                                    AppLocalizations.of(context)!.description,
+                                labelStyle: TextStyle(color: Colors.grey),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: settingsProvider.lightMood()
+                                          ? Colors.grey
+                                          : Colors.white),
+                                ))),
                         SizedBox(
-                          height: 10,
+                          height: screenSize.height * 0.05,
                         ),
                         Text(
-                          'Select Date :',
+                          AppLocalizations.of(context)!.selectDate,
                           style: Theme.of(context).textTheme.headline6,
                         ),
-                        SizedBox(
-                          height: 8,
+                        const SizedBox(
+                          height: 10,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -108,7 +136,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                                 showTaskDatePicker();
                               },
                               child: Text(
-                                  '${MyDateUtils.formatTaskDate(selectedDate)}',
+                                  MyDateUtils.formatTaskDate(
+                                      selectedDate, context),
+                                  textAlign: TextAlign.center,
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline6
@@ -116,12 +146,11 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                                           color:
                                               Theme.of(context).primaryColor))),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         ElevatedButton(
                             onPressed: () {
                               updateTask();
                             },
-                            child: Text('Save Changes'),
                             style: ButtonStyle(
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
@@ -130,7 +159,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                               )),
                               backgroundColor: MaterialStateProperty.all(
                                   Theme.of(context).primaryColor),
-                            ))
+                            ),
+                            child:
+                                Text(AppLocalizations.of(context)!.saveChanges))
                       ],
                     ),
                   ),
@@ -148,13 +179,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         context: context,
         initialDate: selectedDate,
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 365)),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
         builder: (context, child) {
+          var settingsProvider = Provider.of<SettingsProvider>(context);
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: Theme.of(context).primaryColor,
-              ),
+              colorScheme: settingsProvider.currentTheme == ThemeMode.light
+                  ? lightScheme()
+                  : darkScheme(),
+              dialogBackgroundColor: Theme.of(context).accentColor,
             ),
             child: child!,
           );
@@ -165,6 +198,22 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     setState(() {
       selectedDate = userSelectedDate;
     });
+  }
+
+  ColorScheme darkScheme() {
+    return ColorScheme.dark(
+      primary: Theme.of(context).primaryColor,
+      onPrimary: Theme.of(context).accentColor,
+      surface: Theme.of(context).primaryColor,
+    );
+  }
+
+  ColorScheme lightScheme() {
+    return ColorScheme.light(
+      primary: Theme.of(context).primaryColor,
+      onPrimary: Theme.of(context).accentColor,
+      surface: Theme.of(context).primaryColor,
+    );
   }
 
   void updateTask() async {

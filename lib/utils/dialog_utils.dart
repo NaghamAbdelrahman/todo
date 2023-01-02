@@ -7,11 +7,15 @@ class DialogUtils {
         context: context,
         builder: (buildContext) {
           return AlertDialog(
+            backgroundColor: Theme.of(context).accentColor,
             content: Row(
               children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 12),
-                Text(message)
+                const CircularProgressIndicator(),
+                const SizedBox(width: 12),
+                Text(
+                  message,
+                  style: Theme.of(context).textTheme.subtitle1,
+                )
               ],
             ),
           );
@@ -55,7 +59,8 @@ class DialogUtils {
               child: Text(negActionTittle)));
         }
         return AlertDialog(
-          content: Text(message),
+          backgroundColor: Theme.of(context).accentColor,
+          content: Text(message, style: Theme.of(context).textTheme.subtitle1),
           actions: actions,
         );
       },

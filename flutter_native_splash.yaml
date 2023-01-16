@@ -35,6 +35,7 @@ flutter_native_splash:
   # background_image_dark must be specified.  color_dark and background_image_dark cannot both be
   # set.
   #color_dark: "#060E1E"
+  background_image_dark: "assets/images/splash-dark.png"
   #image_dark: assets/images/
   #branding_dark: assets/dart_dark.png
 

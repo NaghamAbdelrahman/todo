@@ -5,7 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/providers/settings_provider.dart';
-import 'package:todo/ui/edit_task_screen.dart';
+import 'package:todo/ui/edit_task/edit_task_screen.dart';
 import 'package:todo/ui/home/home_screen.dart';
 import 'package:todo/ui/my_theme.dart';
 

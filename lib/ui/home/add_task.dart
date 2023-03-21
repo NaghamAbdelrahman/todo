@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:todo/database/my_database.dart';
-import 'package:todo/database/task.dart';
+import 'package:todo/di.dart';
+import 'package:todo/ui/base/base_state.dart';
+import 'package:todo/ui/home/home_viewModel.dart';
 import 'package:todo/utils/date_utils.dart';
 import 'package:todo/utils/dialog_utils.dart';
 
@@ -15,107 +16,126 @@ class AddTask extends StatefulWidget {
   State<AddTask> createState() => _AddTaskState();
 }
 
-class _AddTaskState extends State<AddTask> {
+class _AddTaskState extends BaseState<AddTask, HomeViewModel>
+    implements HomeNavigator {
   var formKey = GlobalKey<FormState>();
   var tittleController = TextEditingController();
   var descriptionController = TextEditingController();
 
   @override
+  HomeViewModel initViewModel() {
+    // TODO: implement initViewModel
+    return HomeViewModel(injectTasksRepository());
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    viewModel.navigator = this;
+  }
+
+  @override
   Widget build(BuildContext context) {
     var settingsProvider = Provider.of<SettingsProvider>(context);
-    return Container(
-      padding: const EdgeInsets.all(15),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.addNewTask,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headline5,
-            ),
-            TextFormField(
-              validator: (input) {
-                if (input == null || input.trim().isEmpty) {
-                  return AppLocalizations.of(context)!.tittleValidation;
-                }
-                return null;
-              },
-              controller: tittleController,
-              style: TextStyle(
-                  color: settingsProvider.currentTheme == ThemeMode.light
-                      ? Colors.black
-                      : Colors.white),
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.tittle,
-                  labelStyle: TextStyle(color: Colors.grey),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                        color: settingsProvider.currentTheme == ThemeMode.light
-                            ? Colors.grey
-                            : Colors.white),
-                  )),
-            ),
-            TextFormField(
+    return ChangeNotifierProvider(
+      create: (_) => viewModel,
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.addNewTask,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headline5,
+              ),
+              TextFormField(
                 validator: (input) {
                   if (input == null || input.trim().isEmpty) {
-                    return AppLocalizations.of(context)!.descriptionValidation;
+                    return AppLocalizations.of(context)!.tittleValidation;
                   }
                   return null;
                 },
-                controller: descriptionController,
+                controller: tittleController,
                 style: TextStyle(
                     color: settingsProvider.currentTheme == ThemeMode.light
                         ? Colors.black
                         : Colors.white),
-                maxLines: 4,
-                minLines: 4,
                 decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.description,
-                    labelStyle: TextStyle(color: Colors.grey),
+                    labelText: AppLocalizations.of(context)!.tittle,
+                    labelStyle: const TextStyle(color: Colors.grey),
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
                           color:
                               settingsProvider.currentTheme == ThemeMode.light
                                   ? Colors.grey
                                   : Colors.white),
-                    ))),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              AppLocalizations.of(context)!.selectDate,
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            SizedBox(
-              height: 11,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                  onTap: () {
-                    showTaskDatePicker();
+                    )),
+              ),
+              TextFormField(
+                  validator: (input) {
+                    if (input == null || input.trim().isEmpty) {
+                      return AppLocalizations.of(context)!
+                          .descriptionValidation;
+                    }
+                    return null;
                   },
-                  child: Text(
-                      '${MyDateUtils.formatTaskDate(selectedDate, context)}',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline6
-                          ?.copyWith(color: Theme.of(context).primaryColor))),
-            ),
-            Spacer(),
-            ElevatedButton(
-                onPressed: () {
-                  insertTask();
-                },
-                child: Text(AppLocalizations.of(context)!.submit),
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all(Theme.of(context).primaryColor),
-                ))
-          ],
+                  controller: descriptionController,
+                  style: TextStyle(
+                      color: settingsProvider.currentTheme == ThemeMode.light
+                          ? Colors.black
+                          : Colors.white),
+                  maxLines: 4,
+                  minLines: 4,
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.description,
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color:
+                                settingsProvider.currentTheme == ThemeMode.light
+                                    ? Colors.grey
+                                    : Colors.white),
+                      ))),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                AppLocalizations.of(context)!.selectDate,
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              const SizedBox(
+                height: 11,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: InkWell(
+                    onTap: () {
+                      showTaskDatePicker();
+                    },
+                    child: Text(
+                        MyDateUtils.formatTaskDate(selectedDate, context),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline6
+                            ?.copyWith(color: Theme.of(context).primaryColor))),
+              ),
+              const Spacer(),
+              ElevatedButton(
+                  onPressed: () {
+                    insertTask();
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                        Theme.of(context).primaryColor),
+                  ),
+                  child: Text(AppLocalizations.of(context)!.submit))
+            ],
+          ),
         ),
       ),
     );
@@ -125,38 +145,8 @@ class _AddTaskState extends State<AddTask> {
     if (formKey.currentState?.validate() == false) {
       return;
     }
-    DialogUtils.showProgressDialog(
-        context, AppLocalizations.of(context)!.loading,
-        isDismisable: false);
-    try {
-      await MyDatabase.insertTask(Task(
-          tittle: tittleController.text,
-          description: descriptionController.text,
-          dateTime: selectedDate));
-      DialogUtils.hideDialog(context);
-      DialogUtils.showMessageDialog(
-          context, AppLocalizations.of(context)!.success,
-          posActionTittle: AppLocalizations.of(context)!.ok, posAction: () {
-        Navigator.pop(context);
-      }, isDismisable: false);
-    } catch (e) {
-      await MyDatabase.insertTask(Task(
-          tittle: tittleController.text,
-          description: descriptionController.text,
-          dateTime: selectedDate));
-      DialogUtils.hideDialog(context);
-      DialogUtils.showMessageDialog(
-          context, AppLocalizations.of(context)!.error,
-          posActionTittle: AppLocalizations.of(context)!.tryAgain,
-          posAction: () {
-            insertTask();
-          },
-          negActionTittle: AppLocalizations.of(context)!.cancel,
-          negAction: () {
-            Navigator.pop(context);
-          },
-          isDismisable: false);
-    }
+    viewModel.saveTask(
+        tittleController.text, descriptionController.text, selectedDate);
   }
 
   var selectedDate = DateTime.now();
@@ -165,7 +155,7 @@ class _AddTaskState extends State<AddTask> {
         context: context,
         initialDate: selectedDate,
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 365)),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
         builder: (context, child) {
           var settingsProvider = Provider.of<SettingsProvider>(context);
           return Theme(
@@ -200,5 +190,31 @@ class _AddTaskState extends State<AddTask> {
       onPrimary: Theme.of(context).accentColor,
       surface: Theme.of(context).primaryColor,
     );
+  }
+
+  @override
+  hideDialog() {
+    DialogUtils.hideDialog(context);
+  }
+
+  @override
+  showMessageDialog(String message,
+      {String? posActionTittle,
+      String? negActionTittle,
+      VoidCallback? posAction,
+      VoidCallback? negAction,
+      bool isDismisable = true}) {
+    DialogUtils.showMessageDialog(context, message,
+        posActionTittle: posActionTittle,
+        posAction: posAction,
+        negActionTittle: negActionTittle,
+        negAction: negAction,
+        isDismisable: isDismisable);
+  }
+
+  @override
+  showProgressDialog(String message, {bool isDismisable = true}) {
+    DialogUtils.showProgressDialog(context, message,
+        isDismisable: isDismisable);
   }
 }

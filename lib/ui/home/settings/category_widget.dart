@@ -22,7 +22,7 @@ class CategoryWidget extends StatelessWidget {
         ),
         SizedBox(height: screenSize.height * 0.03),
         Container(
-          margin: EdgeInsets.symmetric(horizontal: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 10),
           padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.03),
           width: double.infinity,
           height: 48,

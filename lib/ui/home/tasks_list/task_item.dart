@@ -3,9 +3,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:todo/database/my_database.dart';
 import 'package:todo/database/task.dart';
-import 'package:todo/ui/edit_task_screen.dart';
+import 'package:todo/di.dart';
+import 'package:todo/ui/base/base_state.dart';
+import 'package:todo/ui/edit_task/edit_task_screen.dart';
+import 'package:todo/ui/home/home_viewModel.dart';
 import 'package:todo/ui/my_theme.dart';
-import 'package:todo/utils/dialog_utils.dart';
 
 class TaskItem extends StatefulWidget {
   Task task;
@@ -16,7 +18,13 @@ class TaskItem extends StatefulWidget {
   State<TaskItem> createState() => _TaskItemState();
 }
 
-class _TaskItemState extends State<TaskItem> {
+class _TaskItemState extends BaseState<TaskItem, HomeViewModel>
+    implements HomeNavigator {
+  @override
+  HomeViewModel initViewModel() {
+    return HomeViewModel(injectTasksRepository());
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -86,7 +94,7 @@ class _TaskItemState extends State<TaskItem> {
                 ),
                 InkWell(
                   onTap: () async {
-                    await MyDatabase.markAsDone(widget.task);
+                    await viewModel.markAsDone(widget.task);
                     setState(() {});
                   },
                   child: widget.task.isDone == false
@@ -118,14 +126,6 @@ class _TaskItemState extends State<TaskItem> {
   }
 
   void deleteTak() {
-    DialogUtils.showMessageDialog(
-      context,
-      AppLocalizations.of(context)!.confirmMessage,
-      posActionTittle: AppLocalizations.of(context)!.yes,
-      posAction: () async {
-        await MyDatabase.deleteTask(widget.task);
-      },
-      negActionTittle: AppLocalizations.of(context)!.cancel,
-    );
+    viewModel.deleteTak(widget.task);
   }
 }

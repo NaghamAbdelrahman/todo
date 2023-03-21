@@ -3,9 +3,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/database/my_database.dart';
 import 'package:todo/database/task.dart';
-
-import '../providers/settings_provider.dart';
-import '../utils/date_utils.dart';
+import 'package:todo/di.dart';
+import 'package:todo/ui/base/base_state.dart';
+import 'package:todo/ui/edit_task/edit_task_viewModel.dart';
+import '../../providers/settings_provider.dart';
+import '../../utils/date_utils.dart';
 
 class EditTaskScreen extends StatefulWidget {
   static String routeName = 'editTak';
@@ -14,7 +16,8 @@ class EditTaskScreen extends StatefulWidget {
   State<EditTaskScreen> createState() => _EditTaskScreenState();
 }
 
-class _EditTaskScreenState extends State<EditTaskScreen> {
+class _EditTaskScreenState extends BaseState<EditTaskScreen, EditTaskViewModel>
+    implements EditTaskNavigator {
   var formKey = GlobalKey<FormState>();
   var tittleController = TextEditingController();
   var descriptionController = TextEditingController();
@@ -22,16 +25,18 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   late Task task;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      task = ModalRoute.of(context)?.settings.arguments as Task;
-      tittleController.text = task.tittle;
-      descriptionController.text = task.description;
-      selectedDate = task.dateTime;
-      setState(() {});
-    });
+  EditTaskViewModel initViewModel() {
+    return EditTaskViewModel(injectTasksRepository());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    task = ModalRoute.of(context)?.settings.arguments as Task;
+    tittleController.text = task.tittle;
+    descriptionController.text = task.description;
+    selectedDate = task.dateTime;
+    setState(() {});
   }
 
   @override
@@ -220,8 +225,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (formKey.currentState?.validate() == false) {
       return;
     }
-    await MyDatabase.updateTask(
+    viewModel.updateTask(
         task, tittleController.text, descriptionController.text, selectedDate);
+  }
+
+  @override
+  closePage() {
     Navigator.pop(context);
   }
 }

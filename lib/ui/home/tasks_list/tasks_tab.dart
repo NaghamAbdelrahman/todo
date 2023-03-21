@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/database/my_database.dart';
 import 'package:todo/database/task.dart';
+import 'package:todo/di.dart';
 import 'package:todo/providers/settings_provider.dart';
+import 'package:todo/ui/base/base_state.dart';
+import 'package:todo/ui/home/home_viewModel.dart';
 import 'package:todo/ui/home/tasks_list/task_item.dart';
 
 class TasksTab extends StatefulWidget {
@@ -14,8 +17,15 @@ class TasksTab extends StatefulWidget {
   State<TasksTab> createState() => _TasksTabState();
 }
 
-class _TasksTabState extends State<TasksTab> {
+class _TasksTabState extends BaseState<TasksTab, HomeViewModel>
+    implements HomeNavigator {
   var selectedDate = DateTime.now();
+
+  @override
+  HomeViewModel initViewModel() {
+    // TODO: implement initViewModel
+    return HomeViewModel(injectTasksRepository());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +79,7 @@ class _TasksTabState extends State<TasksTab> {
         ),
         Expanded(
           child: StreamBuilder<QuerySnapshot<Task>>(
-              stream: MyDatabase.getTasksRealTime(selectedDate),
+              stream: viewModel.getTask(selectedDate),
               builder: (buildContext, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

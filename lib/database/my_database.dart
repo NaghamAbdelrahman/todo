@@ -3,7 +3,7 @@ import 'package:todo/database/task.dart';
 import 'package:todo/utils/date_utils.dart';
 
 class MyDatabase {
-  static CollectionReference<Task> getTasksCollection() {
+  CollectionReference<Task> getTasksCollection() {
     var tasksCollection =
         FirebaseFirestore.instance.collection('tasks').withConverter<Task>(
               fromFirestore: (snapshot, options) =>
@@ -13,7 +13,7 @@ class MyDatabase {
     return tasksCollection;
   }
 
-  static Future<void> insertTask(Task task) {
+  Future<void> insertTask(Task task) {
     var tasksCollection = getTasksCollection();
     var doc = tasksCollection.doc();
     task.id = doc.id;
@@ -21,7 +21,7 @@ class MyDatabase {
     return doc.set(task);
   }
 
-  static Stream<QuerySnapshot<Task>> getTasksRealTime(DateTime dateTime) {
+  Stream<QuerySnapshot<Task>> getTasksRealTime(DateTime dateTime) {
     return getTasksCollection()
         .where('datetime',
             isEqualTo:
@@ -29,22 +29,22 @@ class MyDatabase {
         .snapshots();
   }
 
-  static Future<void> deleteTask(Task task) {
+  Future<void> deleteTask(Task task) {
     var taskDoc = getTasksCollection().doc(task.id);
     return taskDoc.delete();
   }
 
-  static Future<void> restoreTask(Task task) {
+  Future<void> restoreTask(Task task) {
     var taskDoc = getTasksCollection().doc(task.id);
     return taskDoc.set(task);
   }
 
-  static Future<void> markAsDone(Task task) {
+  Future<void> markAsDone(Task task) {
     task.isDone = !task.isDone;
     return getTasksCollection().doc(task.id).set(task);
   }
 
-  static Future<void> updateTask(
+  Future<void> updateTask(
       Task task, String updateTittle, String updateDesc, DateTime newDate) {
     task.tittle = updateTittle;
     task.description = updateDesc;

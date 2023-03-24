@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:todo/database/my_database.dart';
 import 'package:todo/database/task.dart';
 import 'package:todo/di.dart';
 import 'package:todo/ui/base/base_state.dart';
 import 'package:todo/ui/edit_task/edit_task_viewModel.dart';
+
 import '../../providers/settings_provider.dart';
 import '../../utils/date_utils.dart';
 
@@ -30,13 +30,15 @@ class _EditTaskScreenState extends BaseState<EditTaskScreen, EditTaskViewModel>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    task = ModalRoute.of(context)?.settings.arguments as Task;
-    tittleController.text = task.tittle;
-    descriptionController.text = task.description;
-    selectedDate = task.dateTime;
-    setState(() {});
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      task = ModalRoute.of(context)?.settings.arguments as Task;
+      tittleController.text = task.tittle;
+      descriptionController.text = task.description;
+      selectedDate = task.dateTime;
+      setState(() {});
+    });
   }
 
   @override
